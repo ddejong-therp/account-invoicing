@@ -91,15 +91,16 @@ class AccountAnalyticLine(models.Model):
             'quantity': quantity,
             'price_unit': price,
             'exclude_from_invoice_tab': False,
+            'account_id': product.property_account_income_id.id
         }
         invoice_line_vals2 = {
             'product_id': product.id,
             'discount': first.invoice_discount_id.discount,
             'quantity': 1.0,
             'price_unit': -total_price,
+            'exclude_from_invoice_tab': True,
             'account_id':
                 invoice.partner_id.property_account_receivable_id.id,
-            'exclude_from_invoice_tab': True,
         }
         invoice_line_vals1.update(
             self.env['account.move.line'].play_onchanges(
