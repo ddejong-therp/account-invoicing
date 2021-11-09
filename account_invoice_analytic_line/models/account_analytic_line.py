@@ -124,7 +124,7 @@ class AccountAnalyticLine(models.Model):
             (0, 0, invoice_line_vals1),
             (0, 0, invoice_line_vals2)
         ]
-        #first.move_id = invoice.line_ids[-2].id
+        first.move_id = invoice.line_ids[-2].id
 
     def _account_invoice_analytic_line_group_invoice_lines(self):
         """Group lines that are supposed to be an invoice line"""
