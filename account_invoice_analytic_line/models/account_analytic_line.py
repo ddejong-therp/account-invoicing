@@ -117,6 +117,7 @@ class AccountAnalyticLine(models.Model):
         
         invoice_line_vals1['name'] = first.project_id.name
         invoice_line_vals1['credit'] = invoice_line_vals1['price_subtotal'] if 'price_subtotal' in invoice_line_vals1 else 0.0
+        invoice_line_vals2['name'] = first.project_id.name
         invoice_line_vals2['debit']  = invoice_line_vals1['credit']
         
         invoice.line_ids = [
