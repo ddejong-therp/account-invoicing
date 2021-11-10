@@ -14,7 +14,7 @@
                             The default product to use for invoices that are
                             generated from analytic lines directly. This will
                             only be used if the product hasn't already been
-                            configured on the project or partner itself.
+                            configured on the corresponding project or partner.
                         </div>
                         <field name="account_invoice_analytic_line_product_id" />
                     </div>
