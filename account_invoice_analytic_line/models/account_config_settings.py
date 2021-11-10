@@ -13,35 +13,22 @@ class AccountConfigSettings(models.TransientModel):
         'explicit product configured on the customer or the project',
     )
 
-    def set_account_invoice_analytic_line_product_id(self):
-        existing = self.env['ir.property'].search(
-            self.env['ir.property']._get_domain(
-                'account_invoice_analytic_line_product_id', 'res.partner',
-            ) + [('res_id', '=', False)],
-            limit=1,
-            order='company_id',
+    def set_values(self):
+        res = super().set_values()
+        self.env['ir.config_parameter'].set_param(
+            'account_invoice_analytic_line.' \
+            'account_invoice_analytic_line_product_id',
+            self.account_invoice_analytic_line_product_id.id
         )
-        if not self.account_invoice_analytic_line_product_id:
-            existing.unlink()
-            return
-        if existing:
-            existing.write({
-                'value': self.account_invoice_analytic_line_product_id,
-            })
-            return
-        self.env['ir.property'].create({
-            'name': 'account_invoice_analytic_line_product_id',
-            'fields_id': self.env['ir.model.fields'].search([
-                ('model', '=', 'res.partner'),
-                ('name', '=', 'account_invoice_analytic_line_product_id'),
-            ]).id,
-            'value': self.account_invoice_analytic_line_product_id,
-        })
+        return res
 
-    def get_default_account_invoice_analytic_line_product_id(self, _fields):
-        value = self.env['ir.property'].get(
-            'account_invoice_analytic_line_product_id', 'res.partner',
+    @api.model
+    def get_values(self):
+        res = super().get_values()
+        icp_sudo = self.env['ir.config_parameter'].sudo()
+        product_id = icp_sudo.get_param(
+            'account_invoice_analytic_line.' \
+            'account_invoice_analytic_line_product_id'
         )
-        return {
-            'account_invoice_analytic_line_product_id': value and value.id,
-        }
+        res.update(account_invoice_analytic_line_product_id=int(product_id))
+        return res
