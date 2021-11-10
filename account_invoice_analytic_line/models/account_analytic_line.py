@@ -65,6 +65,11 @@ class AccountAnalyticLine(models.Model):
         have the same product, project and discount"""
         if not self:
             return self.env['account.move.line']
+
+        config_product_id = self.env['ir.config_parameter'].get_param(
+            'account_invoice_analytic_line.' \
+            'account_invoice_analytic_line_product_id'
+        )
         config = self.env['res.config.settings'].search([],
             limit=1, order='id desc')
         
@@ -73,7 +78,9 @@ class AccountAnalyticLine(models.Model):
         product = (
             first.product_id or
             first.project_id.account_invoice_analytic_line_product_id or
-            invoice.partner_id.account_invoice_analytic_line_product_id
+            invoice.partner_id.account_invoice_analytic_line_product_id or
+            self.env['product.product'].browse(int(config_product_id)) \
+                if config_product_id else False
         )
         if not product:
             raise UserError(_(
