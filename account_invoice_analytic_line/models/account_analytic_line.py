@@ -65,6 +65,9 @@ class AccountAnalyticLine(models.Model):
         have the same product, project and discount"""
         if not self:
             return self.env['account.move.line']
+        config = self.env['res.config.settings'].search([],
+            limit=1, order='id desc')
+        
         first = self[:1]
         quantity = sum(self.mapped('unit_amount'))
         product = (
@@ -84,23 +87,30 @@ class AccountAnalyticLine(models.Model):
             quantity=quantity,
         ).price
         total_price = quantity * price
+
+        # Map the taxes to the designated taxes for the selected fiscal
+        # position
+        fiscal_position = invoice.partner_id.property_account_position_id
+        taxes = product.taxes_id if product.taxes_id else config.sale_tax_id
+        invoice_taxes = fiscal_position.map_tax(taxes)
             
         invoice_line_vals1 = {
-            'product_id': product.id,
+            'account_id': product.property_account_income_id.id,
             'discount': first.invoice_discount_id.discount,
-            'quantity': quantity,
-            'price_unit': price,
             'exclude_from_invoice_tab': False,
-            'account_id': product.property_account_income_id.id
+            'price_unit': price,
+            'product_id': product.id,
+            'quantity': quantity,
+            'tax_ids': invoice_taxes
         }
         invoice_line_vals2 = {
-            'product_id': product.id,
-            'discount': first.invoice_discount_id.discount,
-            'quantity': 1.0,
-            'price_unit': -total_price,
-            'exclude_from_invoice_tab': True,
             'account_id':
                 invoice.partner_id.property_account_receivable_id.id,
+            'discount': first.invoice_discount_id.discount,
+            'exclude_from_invoice_tab': True,
+            'price_unit': -total_price,
+            'product_id': product.id,
+            'quantity': 1.0,
         }
         invoice_line_vals1.update(
             self.env['account.move.line'].play_onchanges(
