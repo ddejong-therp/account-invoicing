@@ -9,7 +9,6 @@ class AccountAnalyticLineInvoice(models.TransientModel):
     _description = 'Invoice analytic lines wizard'
 
     def action_invoice(self):
-        print("Active ids:", self.env.context.get('active_ids'))
         return self.env['account.analytic.line'].browse(
             self.env.context.get('active_ids')
         )._account_invoice_analytic_line()
